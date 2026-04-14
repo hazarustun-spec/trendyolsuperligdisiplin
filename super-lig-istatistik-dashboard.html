@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trendyol Süper Lig - Disiplin & Penaltı İstatistikleri (2021-2026)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --gs-primary: #FDB913;
+            --gs-secondary: #C8102E;
+            --fb-primary: #FFED00;
+            --fb-secondary: #00205B;
+            --bjk-primary: #000000;
+            --bjk-secondary: #FFFFFF;
+            --ts-primary: #6A0032;
+            --ts-secondary: #003DA5;
+            --ibfk-primary: #F26522;
+            --ibfk-secondary: #1B1464;
+            --bg-dark: #0f1117;
+            --bg-card: #1a1d28;
+            --bg-card-hover: #22263a;
+            --text-primary: #e8eaf0;
+            --text-secondary: #9ca3b4;
+            --accent: #4f8cff;
+            --border: #2a2e3e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1a1d28 0%, #0f1117 50%, #1a1130 100%);
+            padding: 48px 24px 32px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #4f8cff, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .hero .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .hero .badge {
+            display: inline-block;
+            background: rgba(79, 140, 255, 0.15);
+            border: 1px solid rgba(79, 140, 255, 0.3);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        .container { max-width: 1280px; margin: 0 auto; padding: 24px 16px; }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title .icon { font-size: 1.4rem; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+        .grid-1 { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 32px; }
+
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .card:hover {
+            border-color: rgba(79, 140, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+        }
+
+        .chart-container.tall { height: 420px; }
+
+        /* Summary Table */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .summary-table thead th {
+            background: rgba(79, 140, 255, 0.1);
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .summary-table thead th:first-child { text-align: left; border-radius: 8px 0 0 0; }
+        .summary-table thead th:last-child { border-radius: 0 8px 0 0; }
+
+        .summary-table tbody td {
+            padding: 10px 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-table tbody td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .summary-table tbody tr:hover { background: var(--bg-card-hover); }
+
+        .team-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .highlight-max { color: #ef4444; font-weight: 700; }
+        .highlight-min { color: #22c55e; font-weight: 700; }
+
+        /* Info box */
+        .info-box {
+            background: rgba(79, 140, 255, 0.08);
+            border: 1px solid rgba(79, 140, 255, 0.2);
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .info-box strong { color: var(--text-primary); }
+
+        .sources {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            margin-top: 32px;
+        }
+
+        .sources h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--accent);
+        }
+
+        .sources ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sources li {
+            padding: 6px 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .sources li a:hover { text-decoration: underline; }
+
+        .disclaimer {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: #f87171;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .tab-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+        .tab-btn.active {
+            background: rgba(79, 140, 255, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .stat-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-card .team-name {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 32px 16px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 32px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Trendyol Süper Lig Disiplin & Penaltı Raporu</h1>
+    <p class="subtitle">Galatasaray · Fenerbahçe · Beşiktaş · Trabzonspor · Başakşehir</p>
+    <span class="badge">2021-22 → 2025-26 · 5 Sezon</span>
+</div>
+
+<div class="container">
+
+    <div class="info-box">
+        <strong>Veri Kaynakları:</strong> Bu rapordaki istatistikler; <strong>TFF (Türkiye Futbol Federasyonu)</strong> resmi sezon sonu raporları, <strong>Transfermarkt</strong> Fair Play tabloları, <strong>NTV Spor / Anadolu Ajansı</strong> kart ve penaltı raporları ve <strong>FotMob</strong> takım istatistiklerinden derlenmiştir. 2025-26 sezonu devam etmekte olup Nisan 2026 itibariyle mevcut veriler yansıtılmaktadır.<br><br>
+        <strong>Kapsam:</strong> Tüm veriler <strong>yalnızca Trendyol Süper Lig</strong> maçlarına aittir (sezon başına 38 hafta). Ziraat Türkiye Kupası, Süper Kupa ve Avrupa kupası maçları dahil <strong>değildir</strong>.<br><br>
+        <strong>Not:</strong> VAR penaltı kararlarına ilişkin takım bazlı resmi istatistikler TFF tarafından ayrıca yayımlanmadığından, penaltı verileri genel penaltı kazanma/kullanma rakamlarını yansıtmaktadır.
+    </div>
+
+    <!-- Özet İstatistik Kartları -->
+    <div class="section-title"><span class="icon">📊</span> 5 Sezon Toplam Özet (2021-22 → 2025-26)</div>
+    <div class="stat-cards" id="stat-cards"></div>
+
+    <!-- Sarı Kart Grafikleri -->
+    <div class="section-title"><span class="icon">🟡</span> Sarı Kart İstatistikleri</div>
+    <div class="grid-2">
+        <div class="card">
+            <h3>Sezon Bazlı Sarı Kart Sayıları (Çubuk Grafik)</h3>
+            <div class="chart-container"><canvas id="yellowBarChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3>Sarı Kart Trendi (Çizgi Grafik)</h3>
+            <div class="chart-container"><canvas id="yellowLineChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Kırmızı Kart Grafikleri -->
+    <div class="section-title"><span class="icon">🔴</span> Kırmızı Kart İstatistikleri</div>
+    <div class="grid-2">
+        <div class="card">
+            <h3>Sezon Bazlı Kırmızı Kart Sayıları (Çubuk Grafik)</h3>
+            <div class="chart-container"><canvas id="redBarChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3>Kırmızı Kart Trendi (Çizgi Grafik)</h3>
+            <div class="chart-container"><canvas id="redLineChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Penaltı Grafikleri -->
+    <div class="section-title"><span class="icon">⚽</span> Penaltı İstatistikleri (Lehte Kazanılan)</div>
+    <div class="info-box" style="margin-top:-8px;">
+        <strong>Penaltı verisi ne anlama geliyor?</strong> Aşağıdaki sayılar, takımın rakip ceza sahasında hakem tarafından <strong>lehine verilen penaltı kararı sayısını</strong> göstermektedir. Yani takımın penaltı kullanma hakkı kazandığı toplam karar sayısıdır — gol olup olmadığından bağımsızdır.
+    </div>
+    <div class="grid-2">
+        <div class="card">
+            <h3>Sezon Bazlı Lehte Kazanılan Penaltı Kararları</h3>
+            <div class="chart-container"><canvas id="penaltyBarChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3>Kazanılan Penaltı Trendi (Çizgi Grafik)</h3>
+            <div class="chart-container"><canvas id="penaltyLineChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="section-title"><span class="icon">🎯</span> Çok Boyutlu Karşılaştırma (5 Sezon Ortalama)</div>
+    <div class="grid-2">
+        <div class="card">
+            <h3>Takım Radar Grafiği (Disiplin Profili)</h3>
+            <div class="chart-container tall"><canvas id="radarChart"></canvas></div>
+        </div>
+        <div class="card">
+            <h3>Maç Başına Ortalama Kart (5 Sezon)</h3>
+            <div class="chart-container tall"><canvas id="perMatchChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- 5 Sezon Toplam Karşılaştırma -->
+    <div class="section-title"><span class="icon">🏆</span> 5 Sezon Toplam Karşılaştırma</div>
+    <div class="grid-1">
+        <div class="card">
+            <h3>Toplam Sarı + Kırmızı Kart + Kazanılan Penaltı (Yığılmış Çubuk)</h3>
+            <div class="chart-container tall"><canvas id="stackedChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Özet Tablo -->
+    <div class="section-title"><span class="icon">📋</span> Detaylı Sezon Bazlı Tablo</div>
+    <div class="card" style="overflow-x:auto;">
+        <table class="summary-table" id="summaryTable">
+            <thead>
+                <tr>
+                    <th>Takım</th>
+                    <th>Sezon</th>
+                    <th>Sarı Kart</th>
+                    <th>Kırmızı Kart</th>
+                    <th>Toplam Kart</th>
+                    <th>Kazanılan Penaltı<br><small style="font-weight:400;color:var(--text-secondary)">(lehte verilen karar)</small></th>
+                    <th>Maç Sayısı</th>
+                    <th>Maç/Sarı</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Kaynaklar -->
+    <div class="sources">
+        <h3>📚 Kaynaklar ve Metodoloji</h3>
+        <ul>
+            <li>🏛️ <a href="https://www.tff.org/default.aspx?pageID=201&ftxtID=44518" target="_blank">TFF - Trendyol Süper Lig 2023-2024 Sezonu İstatistikleri</a></li>
+            <li>🏛️ <a href="https://www.tff.org/default.aspx?pageID=201&ftxtID=37717" target="_blank">TFF - 2021-2022 Sezonu Süper Lig İstatistikleri</a></li>
+            <li>🏛️ <a href="https://www.tff.org/Default.aspx?pageId=200&ftxtId=41463" target="_blank">TFF - Spor Toto Süper Lig 2022-2023 Sezonu İstatistikleri</a></li>
+            <li>📊 <a href="https://www.transfermarkt.us/super-lig/fairnesstabelle/wettbewerb/TR1/saison_id/2024" target="_blank">Transfermarkt - Süper Lig Fair Play Tablosu 2024-25</a></li>
+            <li>📊 <a href="https://www.transfermarkt.us/super-lig/fairnesstabelle/wettbewerb/TR1/saison_id/2023/plus/1" target="_blank">Transfermarkt - Süper Lig Fair Play Tablosu 2023-24</a></li>
+            <li>📊 <a href="https://www.transfermarkt.us/super-lig/fairnesstabelle/wettbewerb/TR1/saison_id/2022" target="_blank">Transfermarkt - Süper Lig Fair Play Tablosu 2022-23</a></li>
+            <li>📰 <a href="https://www.ntvspor.net/futbol/super-ligde-2023-24-sezonunun-kart-raporu-665f07c79e2118004f8cf6f8" target="_blank">NTV Spor - Süper Lig 2023-24 Kart Raporu</a></li>
+            <li>📰 <a href="https://www.aa.com.tr/tr/futbol/super-ligde-hakemler-1591-sari-76-kirmizi-kart-cikardi/3239784" target="_blank">Anadolu Ajansı - Süper Lig 2023-24 Kart İstatistikleri</a></li>
+            <li>📰 <a href="https://www.ntv.com.tr/sporskor/super-ligde-2022-2023-sezonu-penalti-dosyasi,98ugvOolJEi19YbKFIKCUQ" target="_blank">NTV - 2022-2023 Sezonu Penaltı Dosyası</a></li>
+            <li>📰 <a href="https://www.aa.com.tr/tr/dosya-haber/super-ligde-ilk-yarinin-penalti-raporu/3434645" target="_blank">Anadolu Ajansı - Süper Lig Penaltı Raporu</a></li>
+            <li>📊 <a href="https://www.fotmob.com/leagues/71/stats/season/23864/teams/penalty_won_team/super-lig-1000-teams" target="_blank">FotMob - Süper Lig Penaltı İstatistikleri</a></li>
+            <li>📊 <a href="https://www.fotmob.com/leagues/71/stats/season/23864/teams/total_red_card_team/super-lig-teams" target="_blank">FotMob - Süper Lig Kırmızı Kart İstatistikleri</a></li>
+            <li>📰 <a href="https://www.tgrthaber.com/aktuel/galatasaray-fenerbahce-besiktas-bu-sezon-kac-penalti-kullandi-super-lig-gs-fb-bjk-sar-3272628" target="_blank">TGRT Haber - 2025-26 Kart & Penaltı İstatistikleri</a></li>
+            <li>📊 <a href="https://www.espn.com/soccer/stats/_/league/TUR.1/view/discipline" target="_blank">ESPN - Turkish Super Lig Discipline Stats</a></li>
+            <li>📊 <a href="https://www.mackolik.com/puan-durumu/t%C3%BCrkiye-trendyol-s%C3%BCper-lig/2025-2026/istatistik/482ofyysbdbeoxauk19yg7tdt" target="_blank">Mackolik - Trendyol Süper Lig İstatistikleri</a></li>
+        </ul>
+        <div class="disclaimer">
+            ⚠️ <strong>Uyarı:</strong> Bu rapordaki veriler yukarıdaki resmi ve güvenilir kaynaklardan derlenmiştir. 2025-26 sezonu devam etmekte olup ilk yarı verileri kullanılmıştır (projeksiyonlar 38 maçlık sezon üzerinden hesaplanmıştır). VAR müdahalesi sonucu penaltı kararları takım bazlı resmi olarak ayrıştırılmadığından, gösterilen penaltı sayıları toplam lehte penaltı kararlarını yansıtmaktadır.
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Trendyol Süper Lig Disiplin & Penaltı Raporu · Nisan 2026 · Veriler resmi kaynaklardan derlenmiştir
+</footer>
+
+<script>
+// ==================== VERİ SETİ ====================
+// Kaynaklar: TFF resmi raporları, Transfermarkt Fair Play tabloları, NTV Spor, AA, FotMob, ESPN, Mackolik
+// 2025-26: İlk yarı verileri (sezon devam ediyor), 38 maç projeksiyonu yapılmıştır
+
+const seasons = ['2021-22', '2022-23', '2023-24', '2024-25', '2025-26*'];
+const teams = ['Galatasaray', 'Fenerbahçe', 'Beşiktaş', 'Trabzonspor', 'Başakşehir'];
+
+const teamColors = {
+    'Galatasaray':  { bg: 'rgba(253, 185, 19, 0.8)',  border: '#FDB913', light: 'rgba(253, 185, 19, 0.15)' },
+    'Fenerbahçe':   { bg: 'rgba(0, 32, 91, 0.8)',     border: '#00205B', light: 'rgba(0, 32, 91, 0.15)' },
+    'Beşiktaş':     { bg: 'rgba(80, 80, 80, 0.8)',    border: '#505050', light: 'rgba(80, 80, 80, 0.15)' },
+    'Trabzonspor':  { bg: 'rgba(106, 0, 50, 0.8)',    border: '#6A0032', light: 'rgba(106, 0, 50, 0.15)' },
+    'Başakşehir':   { bg: 'rgba(242, 101, 34, 0.8)',  border: '#F26522', light: 'rgba(242, 101, 34, 0.15)' },
+};
+
+const teamDots = {
+    'Galatasaray': '#FDB913',
+    'Fenerbahçe': '#00205B',
+    'Beşiktaş': '#505050',
+    'Trabzonspor': '#6A0032',
+    'Başakşehir': '#F26522',
+};
+
+// Sarı Kart verileri (sezon başına)
+// Kaynaklar: TFF 2021-22, 2022-23, 2023-24 resmi raporları; Transfermarkt & NTV Spor kart raporları; TGRT Haber 2025-26
+const yellowCards = {
+    'Galatasaray':  [72, 64, 65, 68, 62],
+    'Fenerbahçe':   [80, 91, 88, 82, 83],
+    'Beşiktaş':     [91, 84, 91, 85, 85],
+    'Trabzonspor':  [58, 71, 63, 66, 58],
+    'Başakşehir':   [70, 68, 76, 72, 69],
+};
+
+// Kırmızı Kart verileri (direkt kırmızı + çift sarıdan kırmızı)
+// Kaynaklar: TFF raporları, Transfermarkt, AA, NTV Spor, FotMob
+const redCards = {
+    'Galatasaray':  [3, 1, 1, 2, 4],
+    'Fenerbahçe':   [5, 5, 5, 3, 2],
+    'Beşiktaş':     [10, 5, 4, 6, 7],
+    'Trabzonspor':  [3, 4, 1, 4, 7],
+    'Başakşehir':   [4, 3, 5, 3, 4],
+};
+
+// Penaltı verileri (lehte kazanılan penaltılar)
+// Kaynaklar: NTV, AA penaltı dosyaları; Transfermarkt penaltı istatistikleri; FotMob; TGRT Haber
+const penalties = {
+    'Galatasaray':  [12, 12, 8, 8, 5],
+    'Fenerbahçe':   [12, 17, 12, 7, 10],
+    'Beşiktaş':     [8, 10, 7, 7, 8],
+    'Trabzonspor':  [11, 9, 6, 5, 10],
+    'Başakşehir':   [6, 5, 5, 4, 4],
+};
+
+// Maç sayıları
+const matches = {
+    'Galatasaray':  [38, 38, 38, 38, 38],
+    'Fenerbahçe':   [38, 38, 38, 38, 38],
+    'Beşiktaş':     [38, 38, 38, 38, 38],
+    'Trabzonspor':  [38, 38, 38, 38, 38],
+    'Başakşehir':   [38, 38, 38, 38, 38],
+};
+
+// ==================== CHART OPTIONS ====================
+Chart.defaults.color = '#9ca3b4';
+Chart.defaults.borderColor = 'rgba(42, 46, 62, 0.5)';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+const tooltipStyle = {
+    backgroundColor: '#1a1d28',
+    titleColor: '#e8eaf0',
+    bodyColor: '#9ca3b4',
+    borderColor: '#2a2e3e',
+    borderWidth: 1,
+    cornerRadius: 8,
+    padding: 12,
+};
+
+function makeDatasets(dataObj, useTeamColors = true) {
+    return teams.map(team => ({
+        label: team,
+        data: dataObj[team],
+        backgroundColor: teamColors[team].bg,
+        borderColor: teamColors[team].border,
+        borderWidth: 2,
+        borderRadius: 4,
+    }));
+}
+
+function makeLineDatasets(dataObj) {
+    return teams.map(team => ({
+        label: team,
+        data: dataObj[team],
+        borderColor: teamColors[team].border,
+        backgroundColor: teamColors[team].light,
+        borderWidth: 3,
+        pointRadius: 5,
+        pointHoverRadius: 8,
+        pointBackgroundColor: teamColors[team].border,
+        tension: 0.3,
+        fill: false,
+    }));
+}
+
+// ==================== CHARTS ====================
+
+// 1. Yellow Bar Chart
+new Chart(document.getElementById('yellowBarChart'), {
+    type: 'bar',
+    data: { labels: seasons, datasets: makeDatasets(yellowCards) },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Sarı Kart Sayısı' }, grid: { color: 'rgba(42,46,62,0.3)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 2. Yellow Line Chart
+new Chart(document.getElementById('yellowLineChart'), {
+    type: 'line',
+    data: { labels: seasons, datasets: makeLineDatasets(yellowCards) },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: false, title: { display: true, text: 'Sarı Kart' }, grid: { color: 'rgba(42,46,62,0.3)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 3. Red Bar Chart
+new Chart(document.getElementById('redBarChart'), {
+    type: 'bar',
+    data: { labels: seasons, datasets: makeDatasets(redCards) },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Kırmızı Kart Sayısı' }, grid: { color: 'rgba(42,46,62,0.3)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 4. Red Line Chart
+new Chart(document.getElementById('redLineChart'), {
+    type: 'line',
+    data: { labels: seasons, datasets: makeLineDatasets(redCards) },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Kırmızı Kart' }, grid: { color: 'rgba(42,46,62,0.3)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 5. Penalty Bar Chart
+new Chart(document.getElementById('penaltyBarChart'), {
+    type: 'bar',
+    data: { labels: seasons, datasets: makeDatasets(penalties) },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Kazanılan Penaltı Kararı (lehte)' }, grid: { color: 'rgba(42,46,62,0.3)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 6. Penalty Line Chart
+new Chart(document.getElementById('penaltyLineChart'), {
+    type: 'line',
+    data: { labels: seasons, datasets: makeLineDatasets(penalties) },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Kazanılan Penaltı Kararı (lehte)' }, grid: { color: 'rgba(42,46,62,0.3)' } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 7. Radar Chart (5-sezon ortalama)
+const avgYellow = teams.map(t => (yellowCards[t].reduce((a,b) => a+b, 0) / 5).toFixed(1));
+const avgRed = teams.map(t => (redCards[t].reduce((a,b) => a+b, 0) / 5).toFixed(1));
+const avgPenalty = teams.map(t => (penalties[t].reduce((a,b) => a+b, 0) / 5).toFixed(1));
+const avgPerMatch = teams.map(t => {
+    const totalY = yellowCards[t].reduce((a,b) => a+b, 0);
+    const totalM = matches[t].reduce((a,b) => a+b, 0);
+    return (totalY / totalM).toFixed(2);
+});
+const totalCards = teams.map(t => {
+    return yellowCards[t].reduce((a,b) => a+b, 0) + redCards[t].reduce((a,b) => a+b, 0);
+});
+
+new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+        labels: ['Ort. Sarı Kart', 'Ort. Kırmızı Kart', 'Ort. Penaltı', 'Maç/Sarı Oranı', 'Toplam Disiplin Puanı'],
+        datasets: teams.map(team => {
+            const tY = yellowCards[team].reduce((a,b) => a+b, 0);
+            const tR = redCards[team].reduce((a,b) => a+b, 0);
+            const tP = penalties[team].reduce((a,b) => a+b, 0);
+            const tM = matches[team].reduce((a,b) => a+b, 0);
+            // Normalize to 0-100 scale for radar
+            return {
+                label: team,
+                data: [
+                    (tY / 5 / 95 * 100).toFixed(1),  // max ~95 yellow avg
+                    (tR / 5 / 10 * 100).toFixed(1),   // max ~10 red avg
+                    (tP / 5 / 17 * 100).toFixed(1),   // max ~17 penalty avg
+                    (tY / tM / 2.5 * 100).toFixed(1), // max ~2.5 per match
+                    ((tY + tR * 3) / 5 / 120 * 100).toFixed(1), // discipline score
+                ],
+                borderColor: teamColors[team].border,
+                backgroundColor: teamColors[team].light,
+                borderWidth: 2,
+                pointBackgroundColor: teamColors[team].border,
+                pointRadius: 4,
+            };
+        })
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            r: {
+                beginAtZero: true,
+                max: 100,
+                grid: { color: 'rgba(42,46,62,0.4)' },
+                angleLines: { color: 'rgba(42,46,62,0.4)' },
+                pointLabels: { font: { size: 11 }, color: '#9ca3b4' },
+                ticks: { display: false }
+            }
+        }
+    }
+});
+
+// 8. Per-match chart
+new Chart(document.getElementById('perMatchChart'), {
+    type: 'bar',
+    data: {
+        labels: teams,
+        datasets: [
+            {
+                label: 'Maç Başına Sarı Kart',
+                data: teams.map(t => (yellowCards[t].reduce((a,b) => a+b, 0) / matches[t].reduce((a,b) => a+b, 0)).toFixed(2)),
+                backgroundColor: 'rgba(253, 224, 71, 0.7)',
+                borderColor: '#fde047',
+                borderWidth: 2,
+                borderRadius: 6,
+            },
+            {
+                label: 'Maç Başına Kırmızı Kart',
+                data: teams.map(t => (redCards[t].reduce((a,b) => a+b, 0) / matches[t].reduce((a,b) => a+b, 0)).toFixed(3)),
+                backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                borderColor: '#ef4444',
+                borderWidth: 2,
+                borderRadius: 6,
+            },
+            {
+                label: 'Maç Başına Kazanılan Penaltı',
+                data: teams.map(t => (penalties[t].reduce((a,b) => a+b, 0) / matches[t].reduce((a,b) => a+b, 0)).toFixed(3)),
+                backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                borderColor: '#22c55e',
+                borderWidth: 2,
+                borderRadius: 6,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: { tooltip: tooltipStyle, legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+        scales: {
+            x: { beginAtZero: true, grid: { color: 'rgba(42,46,62,0.3)' } },
+            y: { grid: { display: false } }
+        }
+    }
+});
+
+// 9. Stacked Bar
+new Chart(document.getElementById('stackedChart'), {
+    type: 'bar',
+    data: {
+        labels: teams,
+        datasets: [
+            {
+                label: 'Toplam Sarı Kart (5 Sezon)',
+                data: teams.map(t => yellowCards[t].reduce((a,b) => a+b, 0)),
+                backgroundColor: 'rgba(253, 224, 71, 0.75)',
+                borderColor: '#fde047',
+                borderWidth: 1,
+            },
+            {
+                label: 'Toplam Kırmızı Kart (5 Sezon)',
+                data: teams.map(t => redCards[t].reduce((a,b) => a+b, 0)),
+                backgroundColor: 'rgba(239, 68, 68, 0.75)',
+                borderColor: '#ef4444',
+                borderWidth: 1,
+            },
+            {
+                label: 'Toplam Kazanılan Penaltı (5 Sezon)',
+                data: teams.map(t => penalties[t].reduce((a,b) => a+b, 0)),
+                backgroundColor: 'rgba(34, 197, 94, 0.75)',
+                borderColor: '#22c55e',
+                borderWidth: 1,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: tooltipStyle,
+            legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } }
+        },
+        scales: {
+            y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Toplam Sayı' }, grid: { color: 'rgba(42,46,62,0.3)' } },
+            x: { stacked: true, grid: { display: false } }
+        }
+    }
+});
+
+// ==================== SUMMARY STAT CARDS ====================
+const statCardsEl = document.getElementById('stat-cards');
+teams.forEach(team => {
+    const tY = yellowCards[team].reduce((a,b) => a+b, 0);
+    const tR = redCards[team].reduce((a,b) => a+b, 0);
+    const tP = penalties[team].reduce((a,b) => a+b, 0);
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML = `
+        <div class="team-name"><span class="team-dot" style="background:${teamDots[team]};display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;"></span>${team}</div>
+        <div class="stat-value" style="color:${teamDots[team]}">${tY + tR}</div>
+        <div class="stat-label">Toplam Kart (5 Sezon)</div>
+        <div style="margin-top:8px;font-size:0.78rem;color:var(--text-secondary)">
+            🟡 ${tY} · 🔴 ${tR} · ⚽ ${tP} kazanılan penaltı
+        </div>
+    `;
+    statCardsEl.appendChild(card);
+});
+
+// ==================== SUMMARY TABLE ====================
+const tbody = document.getElementById('tableBody');
+teams.forEach(team => {
+    for (let i = 0; i < seasons.length; i++) {
+        const y = yellowCards[team][i];
+        const r = redCards[team][i];
+        const p = penalties[team][i];
+        const m = matches[team][i];
+        const perMatch = (y / m).toFixed(2);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span class="team-badge"><span class="team-dot" style="background:${teamDots[team]}"></span>${team}</span></td>
+            <td>${seasons[i]}</td>
+            <td>${y}</td>
+            <td>${r}</td>
+            <td>${y + r}</td>
+            <td>${p}</td>
+            <td>${m}</td>
+            <td>${perMatch}</td>
+        `;
+        tbody.appendChild(row);
+    }
+});
+
+</script>
+
+</body>
+</html>
